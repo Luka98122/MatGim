@@ -16,6 +16,9 @@ Pawn5='5'
 Pawn6='6'
 Pawn7='7'
 Pawn8='8'
+a ='rerw'
+selected = -3
+SpotsToMove = -4
 
 teamTurn = 1
 
@@ -33,7 +36,7 @@ class Player:
         pos = pos+mover
 
 def gameInit ():
-    
+    SpotsToMove= -4
     for i in range(2): #Number of teams
         for j in range(4): #Number of players per team
             if i == 1:
@@ -135,26 +138,117 @@ def drawBoard ():
 
 
 def handleUserInput ():
+    global SpotsToMove
+    global selected
+    cleared = 0
+    print(SpotsToMove, 'Enter user input')
     while True == True:
         try:
             selected = int(input("Confrim moving that pawn, or pick a diffret one. If you see this message alot you are selecting an invalid pawn."))
-            if teamTurn == 1 and selected < 4:
+            print(selected, teamTurn, SpotsToMove, cleared, "selected, teamTurn, SpotsToMove, cleared")
+            for i in range(4):
+                print(selected, teamTurn, SpotsToMove, cleared, "selected, teamTurn, SpotsToMove, cleared")
+                if teamTurn == 1 and selected < 4 and ListOfPlayers[selected].Lx + SpotsToMove != ListOfPlayers[i].Lx:
+                    cleared = cleared + 1
+            if cleared == 4:
+                print(selected, "selected")
+                print(selected, teamTurn, SpotsToMove, cleared, "selected, teamTurn, SpotsToMove, cleared")
                 break
-            if teamTurn == 2 and selected >= 4 and selected < 8:
+            cleared = 0
+            for j in range(4,8):
+                print(selected, teamTurn, SpotsToMove, cleared,ListOfPlayers[i].Lx, ListOfPlayers[selected].Lx+SpotsToMove, "selected, teamTurn, SpotsToMove, cleared, ListOfPlayers[i].Lx, ListOfPlayers[selected].Lx+SpotsToMove")
+                if teamTurn == 2 and selected >= 4 and selected < 8 and ListOfPlayers[selected].Lx + SpotsToMove != ListOfPlayers[j].Lx:
+                    cleared = cleared + 1
+            print("checkPoint", SpotsToMove)
+            if cleared == 4:
+                print(selected, "selected")
+                cleared = 0
                 break
+            cleared = 0
         except:
+                cleared = 0
                 print('You entered an invalid input, please try again')
         print("COME ON")
 
-def GameUpdate():
+def TeamUpdate():
     global teamTurn
-    ignorer = 0
+    global selected
+    global SpotsToMove
+    global a
+
     SpotsToMove = random.randint(1,4)
-    a = input("Hit enter to throw the dice")
-    print("You can move " + str(SpotsToMove) + " spots.")
-    print('')
+    if a == '':
+        print("You can move " + str(SpotsToMove) + " spots.")
+        print('')
+    print(SpotsToMove, "Just defined")
+    checked = 0
+
+    z = checkMoves() 
+    print(z, "z")
+    print(teamTurn, "TeamTurn")
+    if z == 0 and teamTurn == 1:
+        teamTurn = 2
+        return
+    if z == 1 and teamTurn == 2:
+        teamTurn = 1
+        return
+    
+    handleUserInput()
+    if teamTurn == 1:
+        if SpotsToMove == 6:
+            if ListOfPlayers[selected].Lx == -1:
+                ListOfPlayers[selected].Lx = 0
+        else:
+            handleUserInput()
+            ListOfPlayers[selected].Lx = ListOfPlayers[selected].Lx + SpotsToMove 
+            teamTurn = 2
+                
+    else:
+        if teamTurn == 2:
+            if SpotsToMove == 6:
+                if ListOfPlayers[selected].Lx == -1:
+                    ListOfPlayers[selected].Lx = 0
+            else:
+                handleUserInput()
+                print(selected, "selected",SpotsToMove, "SpotsToMove" )
+                ListOfPlayers[selected].Lx = ListOfPlayers[selected].Lx + SpotsToMove
+                teamTurn = 1
 
 
+
+# Checks if team has possible moves, if the first team doesnt have moves, returns 0, if the second team doesnt have moves returns 1. Otherwise returns 3. 
+def checkMoves():
+    global teamTurn
+    global selected
+    global SpotsToMove
+    movelessPawns = 0
+    for i in range(4):
+        if teamTurn == 1 and SpotsToMove != 6 and ListOfPlayers[i].Lx == -1:
+            print(i)
+            movelessPawns = movelessPawns + 1
+
+    if movelessPawns == 4:
+        movelessPawns = 0
+        return 0
+    
+    for j in range(4):
+        if teamTurn == 2 and SpotsToMove != 6 and ListOfPlayers[i+4].Lx == -1:
+            movelessPawns = movelessPawns + 1
+            print(j+4)
+
+
+    if movelessPawns == 4:
+        movelessPawns = 0
+        return 1
+
+
+    movelessPawns = 0
+    return 3
+
+
+def GameUpdate():
+
+    global a
     
     for i in range(len(ListOfPlayers)):
         if ListOfPlayers[i].Lx > 39 and ListOfPlayers[i].color == 2:
@@ -172,127 +266,21 @@ def GameUpdate():
             if ListOfPlayers[4].Lx == -2 and ListOfPlayers[5].Lx == -2 and ListOfPlayers[6].Lx == -2 and ListOfPlayers[7].Lx == -2:
                 print("DRUGI Team je pobedio")
                 exit()
+    a = input("Hit enter to throw the dice")
     if a == "":
-        
-        if ListOfPlayers[0].Lx == -1 and ListOfPlayers[1].Lx == -1 and ListOfPlayers[2].Lx == -1 and ListOfPlayers[3].Lx == -1 and teamTurn == 1 and SpotsToMove != 6:
-            print("nemas pokrete, zavrsio ti se red.")
-            print('')
-            print('')
-            print("tripped 1")
-            teamTurn = 2
-            return
-        print(ListOfPlayers[5].Lx)
-        if ListOfPlayers[4].Lx == -1 and ListOfPlayers[5].Lx == -1 and ListOfPlayers[6].Lx == -1 and ListOfPlayers[7].Lx == -1 and teamTurn == 2 and SpotsToMove != 6:
-            print("nemas pokrete, zavrsio ti se red.")
-            print('')
-            print('')
-            teamTurn = 1
-            return        
-
-        selected = -3
-        handleUserInput()
-        if SpotsToMove == 6:
-            print("I am stuck")
-            while True == True:
-                try:
-                    selected = int(input("Confrim moving that pawn, or pick a diffret one. If you see this message alot you are selecting an invalid pawn."))
-                    if teamTurn == 1 and selected < 4:
-                        break
-                    if teamTurn == 2 and selected >= 4 and selected < 8:
-                        break
-                except:
-                        print('You entered an invalid input, please try again')
-                
-            if ListOfPlayers[selected].Lx == -1:
-                if ListOfPlayers[selected].color == 1 and ListOfPlayers[0].Lx != 0 and ListOfPlayers[5].Lx != 0 and ListOfPlayers[2].Lx != 0 and ListOfPlayers[3].Lx!= 0:
-                    ListOfPlayers[selected].Lx = 0
-                    ignorer = 1
-                if ListOfPlayers[selected].color == 0 and ListOfPlayers[4].Lx != 10 and ListOfPlayers[5].Lx != 10 and ListOfPlayers[6].Lx != 10 and ListOfPlayers[7].Lx!= 10:
-                    ListOfPlayers[selected].Lx = 10
-                    ignorer = 1
-                for j in range(len(ListOfPlayers)):
-                    if ListOfPlayers[selected].Lx == ListOfPlayers[j].Lx:
-                        ListOfPlayers[j].Lx == -1
-                return
-        
-        print("step 1")
-        # Handle user input
-        handleUserInput()
-        while True == True:
-            try:
-                selected = int(input("Confrim moving that pawn, or pick a diffret one. If you see this message alot you are selecting an invalid pawn."))
-                if teamTurn == 1 and selected < 4:
-                    break
-                if teamTurn == 2 and selected >= 4 and selected < 8:
-                    break
-                giveUp = input("Write  done  to end your turn, this is used when you cant take out a pawn or move any.")
-                if giveUp == "done":
-                    break
-            except:
-                print('You entered an invalid input, please try again')
             
-            
-        print("Step 2")                               
-        if ignorer == 0:
-            if teamTurn == 1:
-                while True == True:
-                    
-                    print('1x')
-                    print("12")
-                    if ListOfPlayers[selected].Lx != -1 and \
-                    ListOfPlayers[0].Lx != ListOfPlayers[selected].Lx+SpotsToMove and
-                    ListOfPlayers[1].Lx != ListOfPlayers[selected].Lx+SpotsToMove and
-                    ListOfPlayers[2].Lx != ListOfPlayers[selected].Lx+SpotsToMove and
-                    ListOfPlayers[3].Lx != ListOfPlayers[selected].Lx+SpotsToMove:
-                        ListOfPlayers[selected].Lx = ListOfPlayers[selected].Lx + SpotsToMove
-                        ready = ListOfPlayers[selected].Lx
-                        print("im in")
-                        return
-                        for j in range(len(ListOfPlayers)):
-                            if ListOfPlayers[selected].Lx == ListOfPlayers[j].Lx and ListOfPlayers[i].color != ListOfPlayers[j].color:
-                                ListOfPlayers[j].Lx = -1
-                                ListOfPlayers[selected].Lx = ready
-                    else:
-                        handlePlayerInput()
-                teamTurn = 2
+        ignorer = 0
+        TeamUpdate()
 
-            else:
-                if teamTurn == 2:
-                    print('2x')
-                    print(ListOfPlayers)
-                    while True == True:
-                        print("HI")
-                        if ListOfPlayers[selected].Lx + SpotsToMove != ListOfPlayers[4] and
-                        ListOfPlayers[selected].Lx + SpotsToMove != ListOfPlayers[5] and
-                        ListOfPlayers[selected].Lx + SpotsToMove != ListOfPlayers[6] and
-                        ListOfPlayers[selected].Lx + SpotsToMove != ListOfPlayers[7]:
-                            print("2")
-                            break
-                        else:
-                            print("3")
-                            handlePlayerInput()
-                    
-                    ListOfPlayers[selected].Lx = ListOfPlayers[selected].Lx + SpotsToMove
-                    print("22")
-                    ready = ListOfPlayers[selected].Lx
-                    for j in range(len(ListOfPlayers)):
-                        if ListOfPlayers[selected].Lx == ListOfPlayers[j].Lx and ListOfPlayers[selected].color != ListOfPlayers[j].color:
-                            ListOfPlayers[j].Lx = -1
-                            ListOfPlayers[selected].Lx = ready
-                    teamTurn = 1
-            
-    ignorer = 0
+        for i in range(len(ListOfPlayers)):
+            for j in range(len(ListOfPlayers)):
+                if ListOfPlayers[i].Lx == ListOfPlayers[j].Lx and ListOfPlayers[i].color != ListOfPlayers[j].color and teamTurn == 1:
+                    ListOfPlayers[j].Lx = -1
+                    print("Terminated " + j)
 
-
-    for i in range(len(ListOfPlayers)):
-        for j in range(len(ListOfPlayers)):
-            if ListOfPlayers[i].Lx == ListOfPlayers[j].Lx and ListOfPlayers[i].color != ListOfPlayers[j].color and teamTurn == 1:
-                ListOfPlayers[j].Lx = -1
-                print("Terminated " + j)
-
-            if ListOfPlayers[i].Lx == ListOfPlayers[j].Lx and ListOfPlayers[i].color != ListOfPlayers[j].color and teamTurn == 2:
-                ListOfPlayers[i].Lx = -1
-                print("Terminated" + i)
+                if ListOfPlayers[i].Lx == ListOfPlayers[j].Lx and ListOfPlayers[i].color != ListOfPlayers[j].color and teamTurn == 2:
+                    ListOfPlayers[i].Lx = -1
+                    print("Terminated" + i)
 
 
         
