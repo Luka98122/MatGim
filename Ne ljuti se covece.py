@@ -45,11 +45,11 @@ def gameInit ():
                 Color = 1
             player = Player(Color, j, -1)
             ListOfPlayers.append(player)
-    ListOfPlayers[0].Lx = 10
-    ListOfPlayers[1].Lx = 9
-    ListOfPlayers[2].Lx = 8
-    ListOfPlayers[3].Lx = 7
-    ListOfPlayers[4].Lx = 4
+    ListOfPlayers[0].Lx = 38
+    ListOfPlayers[1].Lx = 37
+    ListOfPlayers[2].Lx = 36
+    ListOfPlayers[3].Lx = 35
+    #ListOfPlayers[4].Lx = 4
     #ListOfPlayers[5].Lx = 37
     #ListOfPlayers[6].Lx = 38
     #ListOfPlayers[7].Lx = 39
@@ -85,6 +85,7 @@ Board = ["XX  OOH  XX",
 
 def LxToBoardCoords (LxCoords, player):
     if LxCoords > 39:
+        print(player, "HERE")
         LxCoords = LxCoords - 40
         ListOfPlayers[player].looped = 1
     if LxCoords < 5:
@@ -123,7 +124,7 @@ def drawBoard ():
             for y in range(len(ListOfPlayers)):
                 a  = [0,0]
                 a = LxToBoardCoords(ListOfPlayers[y].Lx, y)
-                if a[0] == j and a[1] == i and printedPlayer == 0:
+                if a[0] == j and a[1] == i and printedPlayer == 0 and ListOfPlayers[y].Lx != -1:
                     print(y, end='')
                     printedPlayer = 1
             if printedPlayer == 0:
@@ -150,7 +151,7 @@ def handleUserInput ():
                 print(selected, teamTurn, SpotsToMove, cleared, ListOfPlayers[i].Lx, "selected, teamTurn, SpotsToMove, cleared, ListOfPlayers[i]")
                 if teamTurn == 1 and selected < 4 and ListOfPlayers[selected].Lx + SpotsToMove != ListOfPlayers[i].Lx:
                     cleared = cleared + 1
-            if cleared == 4:
+            if cleared == 4 and ListOfPlayers[selected].Lx >= 0:
                 print(selected, "selected")
                 cleared = 0
                 print(selected, teamTurn, SpotsToMove, cleared, "selected, teamTurn, SpotsToMove, cleared")
@@ -161,7 +162,7 @@ def handleUserInput ():
                 if teamTurn == 2 and selected >= 4 and selected < 8 and ListOfPlayers[selected].Lx + SpotsToMove != ListOfPlayers[j].Lx:
                     cleared = cleared + 1
             print("checkPoint", SpotsToMove)
-            if cleared == 4:
+            if cleared == 4 and ListOfPlayers[selected].Lx >= 0:
                 print(selected, "selected")
                 cleared = 0
                 break
@@ -176,7 +177,9 @@ def TeamUpdate():
     global selected
     global SpotsToMove
     global a
-
+    print(ListOfPlayers[1].Lx)
+    print(ListOfPlayers[2].Lx)
+    print(ListOfPlayers[3].Lx)
     SpotsToMove = random.randint(1,4)
     if a == '':
         print("You can move " + str(SpotsToMove) + " spots.")
@@ -218,9 +221,12 @@ def TeamUpdate():
                 ListOfPlayers[selected].Lx = ListOfPlayers[selected].Lx + SpotsToMove
                 for i in range(4):
                     if ListOfPlayers[selected].Lx == ListOfPlayers[i].Lx:
-                        ListOfPlayers[i].Lx == -1
+                        ListOfPlayers[i].Lx = -1
+                        
+                        #raise Exception(f'teamTurn, i, selected, i Lx, selected Lx {teamTurn, i, selected, ListOfPlayers[i].Lx, ListOfPlayers[selected].Lx}') 
                         print(i, "i")
                         print(selected, "selected")
+                        print(ListOfPlayers[i].Lx)
                 teamTurn = 1
 
 
@@ -232,21 +238,24 @@ def checkMoves():
     global SpotsToMove
     movelessPawns = 0
     for i in range(4):
-        if teamTurn == 1 and SpotsToMove != 6 and ListOfPlayers[i].Lx == -1:
+        if teamTurn == 1 and SpotsToMove != 6 and ListOfPlayers[i].Lx < 0:
             print(i)
             movelessPawns = movelessPawns + 1
 
     if movelessPawns == 4:
         movelessPawns = 0
-        PRINT("Team 1 out of moves")
+        print("Team 1 out of moves")
         return 0
     
+
+    movelessPawns = 0
     for j in range(4,8):
-        if teamTurn == 2 and SpotsToMove != 6 and ListOfPlayers[i].Lx == -1:
+        if teamTurn == 2 and SpotsToMove != 6 and ListOfPlayers[j].Lx < 0:
             movelessPawns = movelessPawns + 1
             print(j+4)
 
-
+    print("Beep Boop")
+    print("MovelessPawns", movelessPawns)
     if movelessPawns == 4:
         print("Team 2 out of moves")
         movelessPawns = 0
@@ -265,26 +274,33 @@ def GameUpdate():
         if ListOfPlayers[i].Lx > 39 and ListOfPlayers[i].color == 2:
             ListOfPlayers[i].Lx = ListOfPlayers[i].Lx - 40
             ListOfPlayers[i].looped = 1
-        
 
+        print(ListOfPlayers[i].Lx, i, "lx, i")
+        
+        if ListOfPlayers[i].Lx == 39:
+            ListOfPlayers[i].looped = 1
         
         
         if ListOfPlayers[i].Lx >= 39 and ListOfPlayers[i].color == 1:
             ListOfPlayers[i].Lx = -2
+            ListOfPlayers[i].looped == 1
             print("set Lx to -2")
         if ListOfPlayers[i].Lx > 9 and ListOfPlayers[i].color == 2 and ListOfPlayers[i].looped == 1:
             ListOfPlayers[i].Lx = -2
-        if teamTurn == 1:
-            if ListOfPlayers[i].looped == 1 and ListOfPlayers[i].color == 1:
-                checkedOff = checkedOff + 1
+        
+        if ListOfPlayers[i].looped == 1 and ListOfPlayers[i].color == 1:
+            checkedOff = checkedOff + 1
+        print(checkedOff, ListOfPlayers[0].looped, ListOfPlayers[1].looped, ListOfPlayers[2].looped, ListOfPlayers[3].looped, ListOfPlayers[0].color, ListOfPlayers[1].color, ListOfPlayers[2].color, ListOfPlayers[3].color)
+        #g = input("CHECK THE PRINT ABOVE")
         if checkedOff == 4:
             print("PRVI TEAM je pobedio")
-        checkedOff = 0
+            exit()
+        
             
-        if teamTurn == 2:
-            if ListOfPlayers[4].Lx == -2 and ListOfPlayers[5].Lx == -2 and ListOfPlayers[6].Lx == -2 and ListOfPlayers[7].Lx == -2:
-                print("DRUGI Team je pobedio")
-                exit()
+        if ListOfPlayers[4].Lx == -2 and ListOfPlayers[5].Lx == -2 and ListOfPlayers[6].Lx == -2 and ListOfPlayers[7].Lx == -2:
+            print("DRUGI Team je pobedio")
+            exit()
+    checkedOff = 0
     a = input("Hit enter to throw the dice")
     if a == "":
             
